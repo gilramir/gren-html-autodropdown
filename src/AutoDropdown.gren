@@ -1,5 +1,6 @@
-module AutoDropdown exposing (State, Config, initialState, view)
+module AutoDropdown exposing (State, Config, initialState, view, moveDown, moveUp)
 
+import Array
 import Html exposing (Attribute, Html, ul, li, text)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick, on)
@@ -17,13 +18,131 @@ import Json.Decode as Decode
 type alias State =
     { selectedItem : Maybe String
     , isOpen : Bool
+    , highlightedIndex: Maybe Int
     }
 
 initialState : State
 initialState =
     { selectedItem = Nothing
     , isOpen = False
+    , highlightedIndex = Nothing
     }
+
+moveUp : Array String -> State -> { state: State, highlighted: Maybe String }
+moveUp items state =
+    when state.isOpen is
+        False -> { state = state, highlighted = Nothing }
+        True ->
+            when state.highlightedIndex is
+                Nothing -> { state = state, highlighted = Nothing }
+                Just idx -> definitelyMoveUp idx items state
+
+definitelyMoveUp : Int -> Array String -> State -> { state: State, highlighted: Maybe String }
+definitelyMoveUp idx items state =
+    if idx == 0 then
+        -- Can't go any higher; close the dropdown
+        { state =
+            { state
+                | isOpen = False
+                , highlightedIndex = Nothing
+            }
+        , highlighted = Nothing
+        }
+    else
+        let
+            newIdx = idx - 1
+        in
+            if newIdx < Array.length items then
+                let
+                    newItem = Array.get newIdx items
+                in
+                    when newItem is
+                        -- Impossible, but we handle it to appease the
+                        -- compiler
+                        Nothing -> { state = state, highlighted = Nothing }
+                        Just _ ->
+                            { state =
+                                { state
+                                    | highlightedIndex = Just newIdx
+                                }
+                            , highlighted = newItem
+                            }
+            else
+                -- The caller called us at a weird time, when our
+                -- highlighted index is larger than what the items allow for
+                -- Move to the last item
+                let
+                    maxIdx = (Array.length items) - 1
+                    lastItem = Array.get maxIdx items
+                in
+                    when lastItem is
+                        -- Impossible, but we handle it to appease the
+                        -- compiler
+                        Nothing -> { state = state, highlighted = Nothing }
+                        Just _ ->
+                            { state =
+                                { state
+                                    | highlightedIndex = Just maxIdx
+                                }
+                            , highlighted = lastItem
+                            }
+
+moveDown : Array String -> State -> { state: State, highlighted: Maybe String }
+moveDown items state =
+    when state.isOpen is
+        False ->
+            if Array.length items > 0 then
+                let
+                    { state = newState, highlighted = highlighted } = definitelyMoveDown -1 items state
+                in
+                    { state =
+                        { newState
+                            | isOpen = True
+                        }
+                    , highlighted = highlighted
+                    }
+            else
+                { state = state, highlighted = Nothing }
+        True ->
+            let
+                currentIdx = when state.highlightedIndex is
+                    Nothing -> -1
+                    Just idx -> idx
+            in
+                definitelyMoveDown currentIdx items state
+
+definitelyMoveDown : Int -> Array String -> State -> { state: State, highlighted: Maybe String }
+definitelyMoveDown idx items state =
+    let
+        newIdx = idx + 1
+        newItem = Array.get newIdx items
+    in
+        when newItem is
+            Just _ ->
+                { state =
+                    { state
+                        | highlightedIndex = Just newIdx
+                    }
+                , highlighted = newItem
+                }
+
+            Nothing ->
+                let
+                    maxIdx = (Array.length items) - 1
+                    lastItem = Array.get maxIdx items
+                in
+                    when lastItem is
+                        -- Impossible, but we handle it to appease the
+                        -- compiler
+                        Nothing -> { state = state, highlighted = Nothing }
+                        Just _ ->
+                            { state =
+                                { state
+                                    | highlightedIndex = Just maxIdx
+                                }
+                            , highlighted = lastItem
+                            }
+
 
 {-| The config is more static information, which doesn't
     change during the life cycle of the AutoDropdown.
@@ -36,9 +155,8 @@ type alias Config msg =
      itemPickedMsg : String -> msg
     , ulAttrs : Array (Attribute msg)
     , liAttrs : Array (Attribute msg)
+    , highlightedAttrs: Array (Attribute msg)
     }
-
-
 
 view : Config msg -> State -> Array String -> Html msg
 view config state items =
@@ -50,23 +168,24 @@ view config state items =
                 style "display" "none"
         ulAttrs = config.ulAttrs ++ [ displayStyle ]
     in
-        ul ulAttrs (Array.map (viewItem config) items)
+        ul ulAttrs (Array.indexedMap (viewItem config state) items)
 
 
-viewItem : Config msg -> String -> Html msg
-viewItem config item =
+viewItem : Config msg -> State -> Int -> String -> Html msg
+viewItem config state idx item =
     let
         liAttrs = config.liAttrs ++ [
             -- Use mousedown to capture the event before the input's blur event fires (which would
             -- hide the dropdown)
             on "mousedown" (Decode.succeed (config.itemPickedMsg item) ) ]
 
-    in
-        li liAttrs [ text item ]
+        attrs =
+            when state.highlightedIndex is
+                Nothing -> liAttrs
+                Just highlightedIndex ->
+                    if idx == highlightedIndex then
+                        liAttrs ++ config.highlightedAttrs
+                    else liAttrs
 
---        onClick <| config.itemPickedMsg item ]
-{-
-    li [ class "suggestion-item",
-        text itemText
-        ]
--}
+    in
+        li attrs [ text item ]
