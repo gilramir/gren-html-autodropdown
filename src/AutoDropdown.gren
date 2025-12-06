@@ -1,6 +1,9 @@
 module AutoDropdown exposing (State, Config, initialState, view)
 
-import Html exposing (Attribute, Html, text)
+import Html exposing (Attribute, Html, ul, li, text)
+import Html.Attributes exposing (style)
+import Html.Events exposing (onClick, on)
+import Json.Decode as Decode
 
 -- Heavily inspired by
 -- https://github.com/wintvelt/elm-dropdown/blob/master/examples/Pure/Dropdown.elm
@@ -39,4 +42,31 @@ type alias Config msg =
 
 view : Config msg -> State -> Array String -> Html msg
 view config state items =
-    text "Dropdown goes here"
+    let
+        displayStyle =
+            if state.isOpen then
+                style "display" "block"
+            else
+                style "display" "none"
+        ulAttrs = config.ulAttrs ++ [ displayStyle ]
+    in
+        ul ulAttrs (Array.map (viewItem config) items)
+
+
+viewItem : Config msg -> String -> Html msg
+viewItem config item =
+    let
+        liAttrs = config.liAttrs ++ [
+            -- Use mousedown to capture the event before the input's blur event fires (which would
+            -- hide the dropdown)
+            on "mousedown" (Decode.succeed (config.itemPickedMsg item) ) ]
+
+    in
+        li liAttrs [ text item ]
+
+--        onClick <| config.itemPickedMsg item ]
+{-
+    li [ class "suggestion-item",
+        text itemText
+        ]
+-}
