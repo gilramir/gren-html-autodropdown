@@ -1,0 +1,42 @@
+module AutoDropdown exposing (State, Config, initialState, view)
+
+import Html exposing (Attribute, Html, text)
+
+-- Heavily inspired by
+-- https://github.com/wintvelt/elm-dropdown/blob/master/examples/Pure/Dropdown.elm
+
+{-| AutoDropdown state which is dynamic and can change
+    during each update cycle. It's not managed by the dropdown,
+    but managed by the application and passed into the
+    dropdown during 'view'.
+    This *always* goes into the application's Model.
+-}
+type alias State =
+    { selectedItem : Maybe String
+    , isOpen : Bool
+    }
+
+initialState : State
+initialState =
+    { selectedItem = Nothing
+    , isOpen = False
+    }
+
+{-| The config is more static information, which doesn't
+    change during the life cycle of the AutoDropdown.
+    This *never* goes into the application's Model.
+-}
+type alias Config msg =
+    -- The application handles the msg in its update function,
+    -- and can update the AutoDropdown.State that it has
+    { --itemFocusedMsg : String -> msg,
+     itemPickedMsg : String -> msg
+    , ulAttrs : Array (Attribute msg)
+    , liAttrs : Array (Attribute msg)
+    }
+
+
+
+view : Config msg -> State -> Array String -> Html msg
+view config state items =
+    text "Dropdown goes here"
