@@ -171,10 +171,10 @@ definitelyMoveDown idx items state =
     This *never* goes into the application's Model.
 -}
 type alias Config msg =
-    -- For both itemPickedMsg and mosueEnterMsg,
+    -- For both mouseDownMsg and mouseEnterMsg,
     -- the application handles the msg in its update function,
     -- and updates the AutoDropdown.State that it has
-    { itemPickedMsg : String -> msg
+    { mouseDownMsg : String -> msg
     , mouseEnterMsg : Int -> msg
     , ulAttrs : Array (Attribute msg)
     , liAttrs : Array (Attribute msg)
@@ -202,7 +202,7 @@ viewItem config state idx item =
         liAttrs = config.liAttrs ++ [
             -- Use mousedown to capture the event before the input's blur event fires (which would
             -- hide the dropdown)
-            onMouseDown (config.itemPickedMsg item),
+            onMouseDown (config.mouseDownMsg item),
             onMouseEnter (config.mouseEnterMsg idx)
             ]
 
