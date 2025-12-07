@@ -1,6 +1,27 @@
 module AutoDropdown exposing (State, Config, initialState, view,
     moveDown, moveUp, mouseEnter)
 
+{-|
+
+This is an HTML component written in Gren. It renders and manages
+a dropdown for a list of items that can be selected with the mouse,
+or navigated with the keyboard.
+
+These are the rules about State and Config:
+* Always put AutoDropdown.State in your model
+* Never put AutoDropdown.Config in your model
+
+
+@docs Config
+@docs State
+@docs initialState
+@docs view
+@docs moveDown
+@docs moveUp
+@docs mouseEnter
+-}
+
+
 import Array
 import Html exposing (Attribute, Html, ul, li, text)
 import Html.Attributes exposing (style)
@@ -21,12 +42,17 @@ type alias State =
     , highlightedIndex: Maybe Int
     }
 
+{-| Create an empty State object
+-}
 initialState : State
 initialState =
     { isOpen = False
     , highlightedIndex = Nothing
     }
 
+{-| The caller tells use the user that the mouse has entered an item in the
+dropdown.
+-}
 mouseEnter : Int -> Array String -> State -> State
 mouseEnter idx items state =
     -- change to if Array.length
@@ -41,7 +67,7 @@ mouseEnter idx items state =
         }
 
 
-{- The caller tells use the user is moving up (likely pressing the ArrowUp key.
+{-| The caller tells use the user is moving up (likely pressing the ArrowUp key.
     Adjust the highlightedIndex
 -}
 moveUp : Array String -> State -> { state: State, highlighted: Maybe String }
@@ -104,7 +130,7 @@ definitelyMoveUp idx items state =
                             , highlighted = lastItem
                             }
 
-{- The caller tells use the user is moving down (likely pressing the ArrowDown key.
+{-| The caller tells use the user is moving down (likely pressing the ArrowDown key.
     Adjust the highlightedIndex
 -}
 moveDown : Array String -> State -> { state: State, highlighted: Maybe String }

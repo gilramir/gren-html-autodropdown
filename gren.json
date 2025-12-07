@@ -1,6 +1,6 @@
 {
     "type": "package",
-    "platform": "common",
+    "platform": "browser",
     "name": "gilramir/gren-html-autodropdown",
     "summary": "An HTML Dropdown component for gren",
     "license": "BSD-3-Clause",
@@ -10,6 +10,7 @@
     ],
     "gren-version": "0.6.0 <= v < 0.7.0",
     "dependencies": {
+        "gren-lang/browser": "6.0.0 <= v < 7.0.0",
         "gren-lang/core": "7.2.0 <= v < 8.0.0"
     }
 }
