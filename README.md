@@ -14,8 +14,11 @@ it look the way you want. This is one example of what it can look like.
 ![Example dropdown](https://github.com/gilramir/gren-html-autodropdown/blob/main/example/dropdown-example.png)
 
 A runnable example is provided in the source code. Just open
-[example/index.html](https://github.com/gilramir/gren-html-autodropdown/blob/main/example/index.html)
+**example/index.html** once you have downloaded the code.
 
+You can view the example source code
+[here](https://github.com/gilramir/gren-html-autodropdown/blob/main/example).
+It's the sample application which produced the screenshot above.
 
 # Details
 
@@ -37,9 +40,6 @@ of the list items, but, it's not the actual list.
 
 # How to use it in your code
 
-A fully functional example is included in the
-[example](https://github.com/gilramir/gren-html-autodropdown/blob/main/example/index.html)
-directory.
 
 For your own project, install this package with:
 ```
@@ -91,14 +91,14 @@ In the Config, you will define:
 * **mouseEnterMsg** - the Msg to invoke when the mouse begins to hover over an
    item. Note that it is a "msg Int" function, as it deals with the index
    of the item in the list of items.
-* **ulAttrs** - the entire dropdown is rentered as an unordered list (<ul>).
-    This is the Array of Html.Attribute objects, if any, that you want on the <ul>
-* **liAttrs** - every item in the dropdown is rentered as list item (<li>).
-    This is the Array of Html.Attribute objects, if any, that you want on the <li>.
+* **ulAttrs** - the entire dropdown is rentered as an unordered list (\<ul>).
+    This is the Array of Html.Attribute objects, if any, that you want on the \<ul>
+* **liAttrs** - every item in the dropdown is rentered as list item (\<li>).
+    This is the Array of Html.Attribute objects, if any, that you want on the \<li>.
     AutoDropdown will add to that Array, to manage the mouse and highligting.
 * **highlightedAttrs** -- when the mouse hovers over an item, or the user has
     navigated through the items (presumably with the keyboard), there is one
-    highlighted item. These Html.Attributes area added to the <li> for that
+    highlighted item. These Html.Attributes area added to the \<li> for that
     single highlighted item. Your CSS uses this to draw the highlight.
 
 Example:
@@ -186,9 +186,9 @@ update msg =
 
 # The CSS
 
-The AutoDropdown.view creates one <ul> for the dropdown, and one <li> for
+The AutoDropdown.view creates one \<ul> for the dropdown, and one \<li> for
 each item. It adds as few attributes as possible, but allows you, via the
-Config, to add arbitrary attributes to the <ul> and each <li>.
+Config, to add arbitrary attributes to the \<ul> and each \<li>.
 In pseudo-HTML, it looks like this:
 
 ```html
@@ -197,6 +197,6 @@ In pseudo-HTML, it looks like this:
 </ul>
 ```
 
-Use the Config to put these Html.Attributes onto the <ul> and <li> elements
+Use the Config to put these Html.Attributes onto the \<ul> and \<li> elements
 to render the dropdown as you desire.
 
