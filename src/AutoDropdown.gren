@@ -1,9 +1,10 @@
-module AutoDropdown exposing (State, Config, initialState, view, moveDown, moveUp)
+module AutoDropdown exposing (State, Config, initialState, view,
+    moveDown, moveUp, mouseEnter, mouseLeave)
 
 import Array
 import Html exposing (Attribute, Html, ul, li, text)
 import Html.Attributes exposing (style)
-import Html.Events exposing (onClick, on)
+import Html.Events exposing (onClick, onMouseDown, onMouseEnter, onMouseLeave)
 import Json.Decode as Decode
 
 -- Heavily inspired by
@@ -15,18 +16,52 @@ import Json.Decode as Decode
     dropdown during 'view'.
     This *always* goes into the application's Model.
 -}
+     --selectedItem : Maybe String
 type alias State =
-    { selectedItem : Maybe String
-    , isOpen : Bool
+    { isOpen : Bool
     , highlightedIndex: Maybe Int
     }
 
+     --selectedItem = Nothing
 initialState : State
 initialState =
-    { selectedItem = Nothing
-    , isOpen = False
+    { isOpen = False
     , highlightedIndex = Nothing
     }
+
+mouseEnter : Int -> Array String -> State -> State
+mouseEnter idx items state =
+    -- change to if Array.length
+    when Array.get idx items is
+        Nothing ->
+            -- This should be impossible, but we have to cover it anyway
+            { state
+                | highlightedIndex = Nothing
+            }
+
+        Just item ->
+            { state
+                | highlightedIndex = Just idx
+            }
+
+mouseLeave : Int -> Array String -> State -> State
+mouseLeave idx items state =
+    when state.highlightedIndex is
+        Nothing ->
+            -- Shouldn't happen
+            { state
+                | highlightedIndex = Nothing
+            }
+
+        Just highlightedIndex ->
+            if highlightedIndex == idx then
+                { state
+                    | highlightedIndex = Nothing
+                }
+            else
+                -- How can this happen? Did MouseLeave get processed after MouseEnter
+                -- to another item? If so, change nothing
+                state
 
 moveUp : Array String -> State -> { state: State, highlighted: Maybe String }
 moveUp items state =
@@ -151,8 +186,9 @@ definitelyMoveDown idx items state =
 type alias Config msg =
     -- The application handles the msg in its update function,
     -- and can update the AutoDropdown.State that it has
-    { --itemFocusedMsg : String -> msg,
-     itemPickedMsg : String -> msg
+    { itemPickedMsg : String -> msg
+    , mouseEnterMsg : Int -> msg
+    , mouseLeaveMsg : Int -> msg
     , ulAttrs : Array (Attribute msg)
     , liAttrs : Array (Attribute msg)
     , highlightedAttrs: Array (Attribute msg)
@@ -177,7 +213,10 @@ viewItem config state idx item =
         liAttrs = config.liAttrs ++ [
             -- Use mousedown to capture the event before the input's blur event fires (which would
             -- hide the dropdown)
-            on "mousedown" (Decode.succeed (config.itemPickedMsg item) ) ]
+            onMouseDown (config.itemPickedMsg item),
+            onMouseEnter (config.mouseEnterMsg idx),
+            onMouseLeave (config.mouseEnterMsg idx)
+            ]
 
         attrs =
             when state.highlightedIndex is
