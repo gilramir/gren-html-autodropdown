@@ -1,0 +1,24 @@
+module Model exposing ( initialModel, Model )
+
+import AutoDropdown
+
+import Country exposing (Country, CountryDatabase)
+import CountryDatabase
+
+type alias Model =
+    { countryDb : CountryDatabase
+    , searchText: String
+    , dropdownState: AutoDropdown.State
+    , suggestions: Array String
+    , foundCountries: Array Country
+    }
+
+initialModel : Model
+initialModel =
+    { countryDb = CountryDatabase.db
+    , searchText = ""
+    , dropdownState = AutoDropdown.initialState
+    , suggestions = []
+    , foundCountries = []
+    }
+

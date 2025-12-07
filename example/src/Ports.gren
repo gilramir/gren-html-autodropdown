@@ -1,0 +1,5 @@
+port module Ports exposing (requestFocus)
+
+
+-- (OUTGOING) Request to focus a certain element by ID
+port requestFocus: String -> Cmd msg

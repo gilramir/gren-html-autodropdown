@@ -1,0 +1,217 @@
+module Update exposing (update)
+
+import Dict
+
+import AutoDropdown
+
+import Country exposing (Country, initialCountry)
+import Model exposing (..)
+import Msg exposing (Msg(..))
+import Ports exposing (requestFocus)
+
+update : Msg -> Model -> { model: Model, command: Cmd Msg}
+update msg model =
+    when msg is
+
+        -- User clicked outside the search text input box
+        SearchInputBlurred ->
+            { model =
+                -- Close the suggestion dropdown if it's open
+                { model
+                    | dropdownState = AutoDropdown.initialState
+                }
+            , command = Cmd.none
+            }
+
+        -- User clicked inside the search text input box
+        SearchInputFocused ->
+            let
+                -- Show the suggestions if the text already is not empty
+                showSuggestions = model.searchText /= ""
+            in
+                { model =
+                    { model
+                        | dropdownState =
+                            { model.dropdownState
+                                | isOpen = showSuggestions
+                            }
+                    }
+                , command = Cmd.none
+                }
+
+        -- Here we care about the text in the search box, not special keys
+        -- User typed something (not ENTER) in the search text input box
+        UpdateSearchText text ->
+            let
+                newSuggestions =
+                    when text is
+                        "" -> []
+                        _ -> findCountrySuggestions model text
+            in
+                { model =
+                    { model
+                        | suggestions = newSuggestions
+                    }
+                , command = Cmd.none
+                }
+
+        -- Here we handle special keys, and don't care about the text itself
+        -- User pressed any key, including ENTER, in the search text input box
+        KeyDownSearchText key ->
+            if model.searchText /= "" then
+                when key is
+                    -- ENTER
+                    13 ->
+                        let
+                            newFoundCountries =
+                                when model.searchText is
+                                    "" -> []
+                                    _ -> performCountryLookup model model.searchText
+                        in
+                            { model =
+                                { model
+                                    | foundCountries = newFoundCountries
+                                    , dropdownState =
+                                        { model.dropdownState
+                                            | isOpen = False
+                                        }
+                                }
+                            , command = Cmd.none
+                            }
+
+                    _ ->
+                        let
+                            -- Only honor arrows if there is text in the input box
+                            { state = newDropdownState, highlighted = maybeHighlighted } =
+                                    when key is
+                                        -- ArrowUp
+                                        38 -> AutoDropdown.moveUp model.suggestions model.dropdownState
+                                        -- ArrowDown
+                                        40 -> AutoDropdown.moveDown model.suggestions model.dropdownState
+                                        -- Anything else
+                                        _ -> { state = model.dropdownState, highlighted = Nothing }
+
+                            -- If the highlighted suggestion changed due to ArrowUp or
+                            -- ArrowDown, we also update the text in the search box
+                            newSearchText =
+                                when maybeHighlighted is
+                                    Just item -> item
+                                    -- No updates
+                                    Nothing -> model.searchText
+                        in
+                            { model =
+                                { model
+                                    | dropdownState = newDropdownState
+                                    , searchText = newSearchText
+                                }
+                            , command = Cmd.none
+                            }
+            else
+                -- Ignore the keypress
+                { model = model, command = Cmd.none }
+
+        -- The user moved the mouse over an item in the dropdown list
+        MouseEnterSuggestion idx ->
+            let
+                newDropdownState = AutoDropdown.mouseEnter idx model.suggestions
+                    model.dropdownState
+            in
+            { model =
+                { model
+                    | dropdownState = newDropdownState
+                }
+            , command = Cmd.none
+            }
+
+        -- User clicked the search icon (magnifying glass)
+        ClickedSearchIcon ->
+            let
+                newFoundCountries =
+                    when model.searchText is
+                        "" -> []
+                        _ -> performCountryLookup model model.searchText
+            in
+                { model =
+                    { model
+                        | foundCountries = newFoundCountries
+                    }
+                , command = Cmd.none
+                }
+
+        -- User clicked the clear icon (X in a circle)
+        ClickedClearIcon ->
+            { model =
+                { model
+                    | searchText = ""
+                 }
+              -- Set the focus to the search text input field
+            , command = requestFocus "search-term"
+            }
+
+        -- User clicked an item in the dropdown
+        ClickedSuggestion text ->
+            let
+                newFoundCountries =
+                    when text is
+                        "" -> []
+                        _ -> performCountryLookup model text
+            in
+                { model =
+                    { model
+                        | foundCountries = newFoundCountries
+                        , searchText = text
+                    }
+                , command = Cmd.none
+                }
+
+-- Given a substring, find up to 5 country names that
+-- match
+findCountrySuggestions : Model -> String -> Array String
+findCountrySuggestions model text =
+    let
+        maybeCids = Dict.get model.searchText model.countryDb.substringMap
+    in
+        when maybeCids is
+            Nothing -> []
+            Just matchedCids ->
+                let
+                    arrayMaybeCountries =
+                        Array.map (\cid -> Dict.get cid model.countryDb.byId) matchedCids
+                    arrayJustCountries = Array.keepIf maybeIsJustValue arrayMaybeCountries
+                    firstJustCountries = Array.takeFirst 5 arrayJustCountries
+
+
+                    -- We know every Maybe value has a value, but
+                    -- to appease the compiler we use Maybe.withDefault
+                    -- initialCountry
+                    firstCountries =
+                        Array.map (\mc -> Maybe.withDefault initialCountry mc) firstJustCountries
+                in
+                    Array.map (\c -> c.name) firstCountries
+
+maybeIsJustValue : Maybe a -> Bool
+maybeIsJustValue maybe =
+    when maybe is
+        Nothing -> False
+        Just _ -> True
+
+-- Given a substring, return all the Countries that match
+-- initially at any word in its name
+performCountryLookup : Model -> String -> Array Country
+performCountryLookup model text =
+    let
+        maybeCids = Dict.get text model.countryDb.substringMap
+    in
+        when maybeCids is
+            Nothing -> []
+            Just cids ->
+                let
+                    arrayMaybeCountries =
+                        Array.map (\cid -> Dict.get cid model.countryDb.byId) cids
+                    arrayJustCountries = Array.keepIf maybeIsJustValue arrayMaybeCountries
+                in
+                    -- We know every Maybe value has a value, but
+                    -- to appease the compiler we use Maybe.withDefault
+                    -- initialCountry
+                    Array.map (\mc -> Maybe.withDefault initialCountry mc) arrayJustCountries
+

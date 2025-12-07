@@ -1,0 +1,25 @@
+module Country exposing (Country, initialCountry, CountryDatabase)
+
+import Dict exposing (Dict)
+
+type alias Country =
+    { name : String
+    , officialName : String
+    , capital : String
+    , population : Int
+    }
+
+
+initialCountry : Country
+initialCountry =
+    { name = ""
+    , officialName = ""
+    , capital = ""
+    , population = 0
+    }
+
+type alias CountryDatabase =
+    { byId : Dict Int Country
+    , substringMap : Dict String (Array Int)
+    }
+

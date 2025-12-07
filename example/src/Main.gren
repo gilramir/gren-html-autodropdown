@@ -1,0 +1,24 @@
+module Main exposing (main)
+
+import Browser
+
+import Model exposing (Model, initialModel)
+import Msg exposing (Msg(..))
+import Update
+import View
+
+-- Our initial state, and the first function to call
+init : {} -> { model: Model, command: Cmd Msg}
+init flags =
+    { model = initialModel
+    , command = Cmd.none
+    }
+
+main : Program {} Model Msg
+main =
+    Browser.document
+    { init = init
+    , view = View.view
+    , update = Update.update
+    , subscriptions = \_ -> Sub.none
+    }

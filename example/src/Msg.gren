@@ -1,0 +1,11 @@
+module Msg exposing (Msg(..))
+
+type Msg
+    = UpdateSearchText String
+    | KeyDownSearchText Int
+    | ClickedSearchIcon
+    | ClickedClearIcon
+    | SearchInputBlurred
+    | SearchInputFocused
+    | ClickedSuggestion String
+    | MouseEnterSuggestion Int
