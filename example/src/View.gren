@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Browser exposing (Document)
 import Html exposing (Html, h1,  h3, h4, button, text,
-    textarea, span, div, input, ol, ul, li)
+    textarea, span, div, input, ol, ul, li, b)
 import Html.Attributes exposing (class, value, name, id, type_,
     placeholder)
 import Html.Events exposing (onClick, onInput, onFocus, onBlur)
@@ -29,7 +29,7 @@ view model =
 
 render_content : Model -> Html Msg
 render_content model =
-    div [] [
+    div [ class "main-container"] [
         div [] [
             h3 [] [ text "Enter the name of any country, in English" ]
         ],
@@ -143,25 +143,25 @@ render_countries_data model =
 
 render_country_data : Country -> Model -> Html Msg
 render_country_data country model =
-    div [] [
+    li [] [
         ul [] [
             li [] [
-                span [ class "country-data-key" ] [ text "Name:" ],
-                text country.name
+                text "Name: ",
+                b [] [ text country.name ]
             ],
             li [] [
-                span [ class "country-data-key" ] [ text "Official Name:" ],
+                text "Official Name: ",
                 text country.officialName
             ],
             li [] [
-                span [ class "country-data-key" ] [ text "Population:" ],
+                text "Population: ",
                 -- This doesn't add commas, but to do so would require
                 -- having localization libraries. This is just demo code, so
                 -- I won't bother.
                 text (String.fromInt country.population)
             ],
             li [] [
-                span [ class "country-data-key" ] [ text "Capital:" ],
+                text "Capital:",
                 text country.capital
             ]
         ]

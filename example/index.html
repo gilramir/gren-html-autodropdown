@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>gren-html-autodropdown example</title>
+
+<link rel="stylesheet" href="example.css">
+</head>
+
+<body>
+
+<div id="main"></div>
+
+<script src="main.js"></script>
+<script>
+var app = Gren.Main.init({
+    node: document.getElementById('main'),
+});
+
+app.ports.requestFocus.subscribe(function(elementId) {
+    // Use standard JavaScript to find the element by ID
+    const element = document.getElementById(elementId);
+
+    if (element) {
+        // Call the native JavaScript focus() method
+        element.focus();
+//        console.log(`Focus set to element with ID: ${elementId}`);
+    } else {
+        console.error(`Could not find element with ID: ${elementId}`);
+    }
+});
+</script>
+
+
+</body>
+</html>

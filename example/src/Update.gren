@@ -47,10 +47,16 @@ update msg model =
                     when text is
                         "" -> []
                         _ -> findCountrySuggestions model text
+                showSuggestions = Array.length newSuggestions > 0
             in
                 { model =
                     { model
                         | suggestions = newSuggestions
+                        , searchText = text
+                        , dropdownState =
+                            { model.dropdownState
+                                | isOpen = showSuggestions
+                            }
                     }
                 , command = Cmd.none
                 }
@@ -63,10 +69,7 @@ update msg model =
                     -- ENTER
                     13 ->
                         let
-                            newFoundCountries =
-                                when model.searchText is
-                                    "" -> []
-                                    _ -> performCountryLookup model model.searchText
+                            newFoundCountries = performCountryLookup model model.searchText
                         in
                             { model =
                                 { model
@@ -164,12 +167,29 @@ update msg model =
                 , command = Cmd.none
                 }
 
+
+-- Since this is just a demo, our search database is kept to
+-- a minimum. We're only indexing each word in a country name,
+-- not the entire country name. E.g., for "Antigua and Barbados",
+-- we index "Antigua", "and", and "Barbados", but not
+-- "Antigua and Barbados". To make the demo work, when we perform
+-- lookups, we must also look for just the first word in the
+-- search string
+getSearchWord : String -> String
+getSearchWord text =
+    text
+        |> String.toLower
+        |> String.words
+        |> Array.first
+        |> Maybe.withDefault ""
+
+
 -- Given a substring, find up to 5 country names that
 -- match
 findCountrySuggestions : Model -> String -> Array String
 findCountrySuggestions model text =
     let
-        maybeCids = Dict.get model.searchText model.countryDb.substringMap
+        maybeCids = Dict.get (getSearchWord text) model.countryDb.substringMap
     in
         when maybeCids is
             Nothing -> []
@@ -195,12 +215,13 @@ maybeIsJustValue maybe =
         Nothing -> False
         Just _ -> True
 
+
 -- Given a substring, return all the Countries that match
 -- initially at any word in its name
 performCountryLookup : Model -> String -> Array Country
 performCountryLookup model text =
     let
-        maybeCids = Dict.get text model.countryDb.substringMap
+        maybeCids = Dict.get (getSearchWord text) model.countryDb.substringMap
     in
         when maybeCids is
             Nothing -> []
