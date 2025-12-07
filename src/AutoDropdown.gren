@@ -1,10 +1,10 @@
 module AutoDropdown exposing (State, Config, initialState, view,
-    moveDown, moveUp, mouseEnter, mouseLeave)
+    moveDown, moveUp, mouseEnter)
 
 import Array
 import Html exposing (Attribute, Html, ul, li, text)
 import Html.Attributes exposing (style)
-import Html.Events exposing (onClick, onMouseDown, onMouseEnter, onMouseLeave)
+import Html.Events exposing (onClick, onMouseDown, onMouseEnter)
 import Json.Decode as Decode
 
 -- Heavily inspired by
@@ -16,13 +16,11 @@ import Json.Decode as Decode
     dropdown during 'view'.
     This *always* goes into the application's Model.
 -}
-     --selectedItem : Maybe String
 type alias State =
     { isOpen : Bool
     , highlightedIndex: Maybe Int
     }
 
-     --selectedItem = Nothing
 initialState : State
 initialState =
     { isOpen = False
@@ -32,37 +30,20 @@ initialState =
 mouseEnter : Int -> Array String -> State -> State
 mouseEnter idx items state =
     -- change to if Array.length
-    when Array.get idx items is
-        Nothing ->
-            -- This should be impossible, but we have to cover it anyway
-            { state
-                | highlightedIndex = Nothing
-            }
+    if idx < Array.length items then
+        { state
+            | highlightedIndex = Just idx
+        }
+    else
+        -- This should be impossible, but we have to cover it anyway
+        { state
+            | highlightedIndex = Nothing
+        }
 
-        Just item ->
-            { state
-                | highlightedIndex = Just idx
-            }
 
-mouseLeave : Int -> Array String -> State -> State
-mouseLeave idx items state =
-    when state.highlightedIndex is
-        Nothing ->
-            -- Shouldn't happen
-            { state
-                | highlightedIndex = Nothing
-            }
-
-        Just highlightedIndex ->
-            if highlightedIndex == idx then
-                { state
-                    | highlightedIndex = Nothing
-                }
-            else
-                -- How can this happen? Did MouseLeave get processed after MouseEnter
-                -- to another item? If so, change nothing
-                state
-
+{- The caller tells use the user is moving up (likely pressing the ArrowUp key.
+    Adjust the highlightedIndex
+-}
 moveUp : Array String -> State -> { state: State, highlighted: Maybe String }
 moveUp items state =
     when state.isOpen is
@@ -72,6 +53,7 @@ moveUp items state =
                 Nothing -> { state = state, highlighted = Nothing }
                 Just idx -> definitelyMoveUp idx items state
 
+-- The moveDown code has decided we're definitely moving the index up
 definitelyMoveUp : Int -> Array String -> State -> { state: State, highlighted: Maybe String }
 definitelyMoveUp idx items state =
     if idx == 0 then
@@ -122,13 +104,17 @@ definitelyMoveUp idx items state =
                             , highlighted = lastItem
                             }
 
+{- The caller tells use the user is moving down (likely pressing the ArrowDown key.
+    Adjust the highlightedIndex
+-}
 moveDown : Array String -> State -> { state: State, highlighted: Maybe String }
 moveDown items state =
     when state.isOpen is
         False ->
             if Array.length items > 0 then
                 let
-                    { state = newState, highlighted = highlighted } = definitelyMoveDown -1 items state
+                    { state = newState, highlighted = highlighted } =
+                        definitelyMoveDown -1 items state
                 in
                     { state =
                         { newState
@@ -146,6 +132,7 @@ moveDown items state =
             in
                 definitelyMoveDown currentIdx items state
 
+-- The moveDown code has decided we're definitely moving the index down
 definitelyMoveDown : Int -> Array String -> State -> { state: State, highlighted: Maybe String }
 definitelyMoveDown idx items state =
     let
@@ -179,21 +166,23 @@ definitelyMoveDown idx items state =
                             }
 
 
-{-| The config is more static information, which doesn't
+{-| The config has static information, which doesn't
     change during the life cycle of the AutoDropdown.
     This *never* goes into the application's Model.
 -}
 type alias Config msg =
-    -- The application handles the msg in its update function,
-    -- and can update the AutoDropdown.State that it has
+    -- For both itemPickedMsg and mosueEnterMsg,
+    -- the application handles the msg in its update function,
+    -- and updates the AutoDropdown.State that it has
     { itemPickedMsg : String -> msg
     , mouseEnterMsg : Int -> msg
-    , mouseLeaveMsg : Int -> msg
     , ulAttrs : Array (Attribute msg)
     , liAttrs : Array (Attribute msg)
     , highlightedAttrs: Array (Attribute msg)
     }
 
+{-| Render the HTML for the dropdown
+-}
 view : Config msg -> State -> Array String -> Html msg
 view config state items =
     let
@@ -206,7 +195,7 @@ view config state items =
     in
         ul ulAttrs (Array.indexedMap (viewItem config state) items)
 
-
+-- Render and individual <li> for the dropdown's <ul>
 viewItem : Config msg -> State -> Int -> String -> Html msg
 viewItem config state idx item =
     let
@@ -214,8 +203,7 @@ viewItem config state idx item =
             -- Use mousedown to capture the event before the input's blur event fires (which would
             -- hide the dropdown)
             onMouseDown (config.itemPickedMsg item),
-            onMouseEnter (config.mouseEnterMsg idx),
-            onMouseLeave (config.mouseEnterMsg idx)
+            onMouseEnter (config.mouseEnterMsg idx)
             ]
 
         attrs =
@@ -225,6 +213,5 @@ viewItem config state idx item =
                     if idx == highlightedIndex then
                         liAttrs ++ config.highlightedAttrs
                     else liAttrs
-
     in
         li attrs [ text item ]
