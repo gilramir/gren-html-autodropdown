@@ -2,7 +2,7 @@
     "type": "package",
     "platform": "common",
     "name": "gilramir/gren-html-autodropdown",
-    "summary": "An HTML Dropdown component that the app opens automatically for suggested choices",
+    "summary": "An HTML Dropdown component for gren",
     "license": "BSD-3-Clause",
     "version": "1.0.0",
     "exposed-modules": [

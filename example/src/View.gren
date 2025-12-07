@@ -18,6 +18,16 @@ import Msg exposing (Msg(..))
 import OnKeyDown exposing (onKeyDown)
 import SearchLine exposing (searchLine)
 
+{- This is the configuration for the dropdown
+-}
+dropdownConfig: AutoDropdown.Config Msg
+dropdownConfig =
+    { mouseDownMsg = ClickedSuggestion
+    , mouseEnterMsg = MouseEnterSuggestion
+    , ulAttrs = [ id "suggestion-dropdown", class "suggestion-dropdown" ]
+    , liAttrs = [ class "suggestion-item" ]
+    , highlightedAttrs = [ class "suggestion-item-highlighted" ]
+    }
 
 view : Model -> Document Msg
 view model =
@@ -39,15 +49,6 @@ render_content model =
         else
             render_countries_data model
     ]
-
-dropdownConfig: AutoDropdown.Config Msg
-dropdownConfig =
-    { mouseDownMsg = ClickedSuggestion
-    , mouseEnterMsg = MouseEnterSuggestion
-    , ulAttrs = [ id "suggestion-dropdown", class "suggestion-dropdown" ]
-    , liAttrs = [ class "suggestion-item" ]
-    , highlightedAttrs = [ class "suggestion-item-highlighted" ]
-    }
 
 render_country_input : Model -> Html Msg
 render_country_input model =

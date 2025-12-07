@@ -6,11 +6,12 @@ or navigated with the keyboard. Different dropdowns are designed
 in different ways, so this dropdown may not work perfectly for your
 use case.
 
-This dropdown was specifically designed as part of a
-[dictionary app](https://hangil.app/neendy).
+This dropdown was specifically designed as part of a dicionary app.
 When the user starts typing into a text input box,
 the dictionary shows suggestions to show to the the user in
 a dropdown that automatically pops up. Hence the name, "AutoDropdown".
+
+![Example dropdown][example/dropdown-example.png]
 
 If this dropdown doesn't suit your needs, perhaps I can adjust as needed, or
 accept Pull Requests. Of course, you can fork this project if you need
@@ -90,7 +91,7 @@ In the Config, you will define:
     single highlighted item. Your CSS uses this to draw the highlight.
 
 Example:
-```elmg
+```elm
 dropdownConfig: AutoDropdown.Config Msg
 dropdownConfig =
     { itemClickedMsg = ClickedDropdownItem
