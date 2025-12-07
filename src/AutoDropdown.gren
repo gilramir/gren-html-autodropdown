@@ -7,13 +7,24 @@ This is an HTML component written in Gren. It renders and manages
 a dropdown for a list of items that can be selected with the mouse,
 or navigated with the keyboard.
 
+Your application will hold one AutoDropdown.State and one
+AutoDropdown.Config for every dropdown it instantiates.
+
 These are the rules about State and Config:
 * Always put AutoDropdown.State in your model
 * Never put AutoDropdown.Config in your model
 
+# Types
+
+## Config
 
 @docs Config
+
+## State
+
 @docs State
+
+# Functions
 @docs initialState
 @docs view
 @docs moveDown
@@ -31,11 +42,16 @@ import Json.Decode as Decode
 -- Heavily inspired by
 -- https://github.com/wintvelt/elm-dropdown/blob/master/examples/Pure/Dropdown.elm
 
-{-| AutoDropdown state which is dynamic and can change
+{-| This holds AutoDropdown state which is dynamic and can change
     during each update cycle. It's not managed by the dropdown,
     but managed by the application and passed into the
     dropdown during 'view'.
     This *always* goes into the application's Model.
+    The application can and should change *isOpen* as needed.
+    The dropdown can change *isOpen* to False when the user navigates
+    too far up (see **moveUp**).
+    The application should not modify **highlightedIndex**; the dropdown does
+    that.
 -}
 type alias State =
     { isOpen : Bool
@@ -50,8 +66,9 @@ initialState =
     , highlightedIndex = Nothing
     }
 
-{-| The caller tells use the user that the mouse has entered an item in the
-dropdown.
+{-| The applications calls this to tell the dropdown that the user's mouse
+    has entered a dropdown item while it is being displayed.
+    This function returns the new State.
 -}
 mouseEnter : Int -> Array String -> State -> State
 mouseEnter idx items state =
@@ -67,8 +84,9 @@ mouseEnter idx items state =
         }
 
 
-{-| The caller tells use the user is moving up (likely pressing the ArrowUp key.
-    Adjust the highlightedIndex
+{-| The caller tells use the user is moving up, likely by pressing the ArrowUp key.
+    It returns the new State, and the Maybe highlighted item (String),
+    in case the application needs it.
 -}
 moveUp : Array String -> State -> { state: State, highlighted: Maybe String }
 moveUp items state =
@@ -130,8 +148,11 @@ definitelyMoveUp idx items state =
                             , highlighted = lastItem
                             }
 
-{-| The caller tells use the user is moving down (likely pressing the ArrowDown key.
-    Adjust the highlightedIndex
+{-| The caller tells use the user is moving down, llikely due to
+    pressing the ArrowDown key.
+    **moveDown** will adjust the highlightedIndex appropriately.
+    It returns the new State, and the Maybe highlighted item (String),
+    in case the application needs it.
 -}
 moveDown : Array String -> State -> { state: State, highlighted: Maybe String }
 moveDown items state =
@@ -195,6 +216,7 @@ definitelyMoveDown idx items state =
 {-| The config has static information, which doesn't
     change during the life cycle of the AutoDropdown.
     This *never* goes into the application's Model.
+    It's closer to your View.
 -}
 type alias Config msg =
     -- For both mouseDownMsg and mouseEnterMsg,

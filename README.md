@@ -10,8 +10,8 @@ the app opens a dropdown and shows suggestions to the user.
 Because the dropdown opens like this, I named it "AutoDropdown".
 
 It has no styling at all. You must provide the styles to make
-it look the way you want. This is one example of what it can look like.
-![Example dropdown](https://github.com/gilramir/gren-html-autodropdown/blob/main/example/dropdown-example.png)
+it look the way you want. This is one example of what it can look like:
+[Example dropdown](https://github.com/gilramir/gren-html-autodropdown/blob/main/example/dropdown-example.png)
 
 A runnable example is provided in the source code. Just open
 **example/index.html** once you have downloaded the code.
@@ -124,7 +124,6 @@ the AutoDropdown.State, and your Model, accordingly.
 
 * **mouseDown** - this is triggered when the user clicks on
     an item in the dropdown.
-
 * **mouseEnter** - this is triggered when the user hovers on
     an item in the dropdown with their mouse.
 
@@ -199,4 +198,30 @@ In pseudo-HTML, it looks like this:
 
 Use the Config to put these Html.Attributes onto the \<ul> and \<li> elements
 to render the dropdown as you desire.
+
+# The Example
+
+Things to note in the example code:
+
+* In Model.gren, the Model holds the AutoDropdown.State
+* In View.gren is the definition of the AutoDropdown.Config, and
+    also the call to AutoDropdown.view
+* In Update.gren:
+  * ClickedSuggestion is handled when the user clicks on an item in the dropdown
+  * MouseEnterSuggesion is handled when the user's mouse hovers over an item
+  * The dropdown's items are populated in UpdateSearchText, as the user types
+  * The dropdown is hidden when SearchInputBlurred is called.
+  * The dropdown is opened when SearchInputFoucsed is called, if there are items
+    to show
+  * As KeyDownSearchText is called, the arrow keys are interecepted and
+    passed to AutoDropdown.moveUp and AutoDropdown.moveDown
+
+# Thanks
+
+This code was heavily inspired by Wouter In t Velt's article, and example code,
+"A Reusable Dropdown in Elm":
+* [Part 1](https://medium.com/elm-shorts/a-reusable-dropdown-in-elm-part-1-d7ac2d106f13)
+* [Part 2](https://medium.com/elm-shorts/a-reusable-dropdown-in-elm-part-2-9659ef988441)
+* [wintvelt/elm-dropdown](https://github.com/wintvelt/elm-dropdown/blob/master/examples/Pure/Dropdown.elm )
+
 
