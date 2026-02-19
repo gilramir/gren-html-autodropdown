@@ -24,16 +24,17 @@ dropdownConfig: AutoDropdown.Config Msg
 dropdownConfig =
     { mouseDownMsg = ClickedSuggestion
     , mouseEnterMsg = MouseEnterSuggestion
-    , ulAttrs = [ id "suggestion-dropdown", class "suggestion-dropdown" ]
-    , liAttrs = [ class "suggestion-item" ]
-    , highlightedAttrs = [ class "suggestion-item-highlighted" ]
+    , ulAttrs = [ class "autodropdown-list" ]
+    , liAttrs = [ class "autodropdown-item" ]
+    , highlightedAttrs = [ class "autodropdown-item-highlighted" ]
     }
 
 view : Model -> Document Msg
 view model =
     { title = "AutoDropdown Example"
     , body = [
-        render_content model
+        render_content model,
+        render_disclaimer
     ]
     }
 
@@ -67,9 +68,9 @@ render_search_text_input model =
     let
         -- Style the text input differently depending on whether the dropdown
         -- is open or not.
-        inputClass = if model.dropdownState.isOpen then "dropdown-open" else ""
+        inputClass = if model.dropdownState.isOpen then "autodropdown-input-open" else ""
     in
-        input [ type_ "text", id "search-term",
+        input [ type_ "text", class "autodropdown-input",
             placeholder "e.g., Thailand",
             value model.searchText,
             -- React when the text changes
@@ -105,8 +106,8 @@ render_search_icon_button model =
         SearchLine.searchLine []
     ]
 
-render_disclamer : Html Msg
-render_disclamer =
+render_disclaimer : Html Msg
+render_disclaimer =
     div [] [
         h4 [] [text "Disclaimer"],
         div [ class "disclaimer" ] [
@@ -162,7 +163,7 @@ render_country_data country model =
                 text (String.fromInt country.population)
             ],
             li [] [
-                text "Capital:",
+                text "Capital: ",
                 text country.capital
             ]
         ]
