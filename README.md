@@ -1,7 +1,7 @@
 # AutoDropdown
 
-This is an HTML component written in Gren. It renders and manages
-a dropdown for a list of items that can be selected with the mouse,
+This is an HTML "widget" written in Gren. It renders and manages
+a dropdown list of items that can be selected with the mouse,
 or navigated with the keyboard.
 
 This dropdown was specifically designed as part of a dicionary app.
@@ -31,7 +31,8 @@ The application which uses this AutoDropdown component will
 have a **Config**, for definitions that don't change
 over the lifetime of the dropdown. And it also has a **State**, to
 keep a tiny amount of information needed to render the dropdown,
-but not the list of items itself. That list stays in your application's Model.
+but not the list of items itself. Importantly, the actual list of items
+is stored in your application's Model, not in the AutoDropdown.
 
 Where the AutoDropdown is perhaps not 100% "pure" is that it does
 keep track of which item is currently highlighted as the user navigates,
@@ -48,7 +49,7 @@ $ gren package install gilramir/gren-html-autodropdown
 
 ## The Model
 
-In your code which defines your Model, import AutoDropdown.
+In the file which defines your Model, import AutoDropdown.
 Your model needs an AutoDropdown.State for every dropdown instance.
 ```elm
 import AutoDropdown
@@ -67,10 +68,10 @@ type alias State =
 ```
 
 Your application will set the **isOpen**
-field, to tell the AutoDropdown whether its visible or not. The dropdown
-tself will update **highlightedIndex**, to track which item is highlighted, as
-your **update** function handles messages. Your application will not
-use or modify **highlightedIndex**.
+field, to tell the AutoDropdown whether it's to be shown or not. The dropdown
+itself will update **highlightedIndex**, to track which item is highlighted, as
+your **update** function handles messages and calls Autodropdown.update.
+Your application will not use or modify **highlightedIndex**.
 
 ## View
 
@@ -86,18 +87,19 @@ view =
 ```
 
 In the Config, you will define:
-* **mouseDownMsg** - the Msg to invoke if the user selects an item with the mouse.
-    Note that it is a "msg String" function.
+* **mouseDownMsg** - the Msg to invoke if the user selects an item by clicking
+    the mouse. Note that it is a "msg String" function.
 * **mouseEnterMsg** - the Msg to invoke when the mouse begins to hover over an
    item. Note that it is a "msg Int" function, as it deals with the index
    of the item in the list of items.
-* **ulAttrs** - the entire dropdown is rentered as an unordered list (\<ul>).
+* **ulAttrs** - the dropdown is rendered as an unordered list (\<ul>).
     This is the Array of Html.Attribute objects, if any, that you want on the \<ul>
-* **liAttrs** - every item in the dropdown is rentered as list item (\<li>).
+* **liAttrs** - every item in the dropdown is rendered as list item (\<li>).
     This is the Array of Html.Attribute objects, if any, that you want on the \<li>.
-    AutoDropdown will add to that Array, to manage the mouse and highligting.
+    AutoDropdown will add more Html.Attributes to that Array, to manage the
+    turn on and off highlighting .
 * **highlightedAttrs** -- when the mouse hovers over an item, or the user has
-    navigated through the items (presumably with the keyboard), there is one
+    navigated through the items (presumably with the keyboard), there will be one
     highlighted item. These Html.Attributes area added to the \<li> for that
     single highlighted item. Your CSS uses this to draw the highlight.
 
@@ -107,9 +109,9 @@ dropdownConfig: AutoDropdown.Config Msg
 dropdownConfig =
     { itemClickedMsg = ClickedDropdownItem
     , mouseEnterMsg = MouseEnterDropdownItem
-    , ulAttrs = [ class "suggestion-dropdown" ]
-    , liAttrs = [ class "suggestion-item" ]
-    , highlightedAttrs = [ class "suggestion-item-highlighted" ]
+    , ulAttrs = [ class "autodropdown-list" ]
+    , liAttrs = [ class "autodropdown-item" ]
+    , highlightedAttrs = [ class "autodropdown-item-highlighted" ]
     }
 ```
 
@@ -119,7 +121,8 @@ These are the rules about State and Config:
 
 ## Update
 
-Your **update** function will handle the two messages, and update
+Your **update** function will handle the two messages listed in
+the AutoDropdown.Config, and update
 the AutoDropdown.State, and your Model, accordingly.
 
 * **mouseDown** - this is triggered when the user clicks on
@@ -127,7 +130,16 @@ the AutoDropdown.State, and your Model, accordingly.
 * **mouseEnter** - this is triggered when the user hovers on
     an item in the dropdown with their mouse.
 
-You will have other messages for handling the keyboard input.
+There are other messages you need to handle to make your input fully
+functional, but they are not tracked in AutoDropdown.Config, as
+AutoDropdown itself doesn't need to know aobut them.
+
+
+* **onInput** - react when the user changes the text in the \<input>
+* **onKeyDown** - watch every keystroke, to handle Enter, Down, and Up
+* **onBlur** - perhaps you want to disable the dropdown when focus goes away
+* **onBlur** - perhaps you want to re-enable the dropdown when focus returns
+
 
 # The Mouse
 
@@ -215,6 +227,8 @@ Things to note in the example code:
     to show
   * As KeyDownSearchText is called, the arrow keys are interecepted and
     passed to AutoDropdown.moveUp and AutoDropdown.moveDown
+
+All the CSS that is specific for AutoDropdown is in autodropdown.css.
 
 # Thanks
 
