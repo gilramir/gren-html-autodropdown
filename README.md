@@ -28,11 +28,17 @@ laid forth in the README in the
 package.
 
 The application which uses this AutoDropdown component will
-have a **Config**, for definitions that don't change
-over the lifetime of the dropdown. And it also has a **State**, to
-keep a tiny amount of information needed to render the dropdown,
-but not the list of items itself. Importantly, the actual list of items
-is stored in your application's Model, not in the AutoDropdown.
+have a **Config**, which tells AutoDropdown which HTML.Attributes
+to add to the dropdown that it renders. You pass this to AutoDropdown.view,
+and since it's not likely to change, you don't store this in your Model.
+
+AutoDropdown also has a **State**, to
+keep a tiny amount of information needed to render the dropdown
+as the user navigates through it. The State is stored in your Model,
+as it gets updated during the **update** cycle.
+
+Importantly, the actual list of items is stored in your application's
+Model, not in the AutoDropdown State or Config.
 
 Where the AutoDropdown is perhaps not 100% "pure" is that it does
 keep track of which item is currently highlighted as the user navigates,
@@ -68,10 +74,12 @@ type alias State =
 ```
 
 Your application will set the **isOpen**
-field, to tell the AutoDropdown whether it's to be shown or not. The dropdown
-itself will update **highlightedIndex**, to track which item is highlighted, as
-your **update** function handles messages and calls Autodropdown.update.
-Your application will not use or modify **highlightedIndex**.
+field, to tell the AutoDropdown whether it's to be shown or not.
+
+The AutoDropdown code itself will update **highlightedIndex**, to track
+which item is highlighted, as your **update** function handles messages
+and calls Autodropdown.update.  Your application will not read or modify
+**highlightedIndex**.
 
 ## View
 
@@ -132,13 +140,13 @@ the AutoDropdown.State, and your Model, accordingly.
 
 There are other messages you need to handle to make your input fully
 functional, but they are not tracked in AutoDropdown.Config, as
-AutoDropdown itself doesn't need to know aobut them.
+AutoDropdown itself doesn't need to know about them.
 
 
 * **onInput** - react when the user changes the text in the \<input>
 * **onKeyDown** - watch every keystroke, to handle Enter, Down, and Up
 * **onBlur** - perhaps you want to disable the dropdown when focus goes away
-* **onBlur** - perhaps you want to re-enable the dropdown when focus returns
+* **onFocus** - perhaps you want to re-enable the dropdown when focus returns
 
 
 # The Mouse
@@ -161,6 +169,9 @@ update msg =
             , command = Cmd.none
             }
 ```
+
+THe **mouseDown** update handler does not need to call anything in
+AutoDropdown. Your own **update** function handles this.
 
 # The Keyboard
 
