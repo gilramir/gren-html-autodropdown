@@ -4,7 +4,7 @@ This is an HTML "widget" written in Gren. It renders and manages
 a dropdown list of items that can be selected with the mouse,
 or navigated with the keyboard.
 
-This dropdown was specifically designed as part of a dicionary app.
+This dropdown was specifically designed as part of a dictionary app.
 When the user starts typing into a text input box,
 the app opens a dropdown and shows suggestions to the user.
 Because the dropdown opens like this, I named it "AutoDropdown".
@@ -170,7 +170,7 @@ update msg =
             }
 ```
 
-THe **mouseDown** update handler does not need to call anything in
+The **mouseDown** update handler does not need to call anything in
 AutoDropdown. Your own **update** function handles this.
 
 # The Keyboard
@@ -181,7 +181,7 @@ and which will control the navigation in the dropdown.  In your application's
 **update** function, you can call the **moveUp** and **moveDown** functions
 to tell the dropdown about the keyboard navigation.
 
-The **moveUp** and **moveDown** functiosn will adjust which item is highlighted,
+The **moveUp** and **moveDown** functions will adjust which item is highlighted,
 and return the new State for you to store in your Model. They also will
 return the newly-highlighted item's text (or the old one, if it didn't change). It
 might return Nothing, as scrolling up all the way will have caused the
@@ -231,12 +231,12 @@ Things to note in the example code:
     also the call to AutoDropdown.view
 * In Update.gren:
   * ClickedSuggestion is handled when the user clicks on an item in the dropdown
-  * MouseEnterSuggesion is handled when the user's mouse hovers over an item
+  * MouseEnterSuggestion is handled when the user's mouse hovers over an item
   * The dropdown's items are populated in UpdateSearchText, as the user types
   * The dropdown is hidden when SearchInputBlurred is called.
   * The dropdown is opened when SearchInputFoucsed is called, if there are items
     to show
-  * As KeyDownSearchText is called, the arrow keys are interecepted and
+  * As KeyDownSearchText is called, the arrow keys are intercepted and
     passed to AutoDropdown.moveUp and AutoDropdown.moveDown
 
 All the CSS that is specific for AutoDropdown is in autodropdown.css.
