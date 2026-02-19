@@ -8,8 +8,8 @@
     "gren-version": "0.6.3",
     "dependencies": {
         "direct": {
-            "gren-lang/browser": "6.0.1",
-            "gren-lang/core": "7.2.1"
+            "gren-lang/browser": "6.0.2",
+            "gren-lang/core": "7.3.0"
         },
         "indirect": {
             "gren-lang/url": "6.0.0"
