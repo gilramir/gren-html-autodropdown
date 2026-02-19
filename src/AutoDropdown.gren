@@ -3,7 +3,7 @@ module AutoDropdown exposing (State, Config, initialState, view,
 
 {-|
 
-This is an HTML component written in Gren. It renders and manages
+This is an HTML widget written in Gren. It renders and manages
 a dropdown for a list of items that can be selected with the mouse,
 or navigated with the keyboard.
 
@@ -66,7 +66,7 @@ initialState =
     , highlightedIndex = Nothing
     }
 
-{-| The applications calls this to tell the dropdown that the user's mouse
+{-| The applications calls mouseEnter to tell the dropdown that the user's mouse
     has entered a dropdown item while it is being displayed.
     This function returns the new State.
 -}
@@ -84,7 +84,8 @@ mouseEnter idx items state =
         }
 
 
-{-| The caller tells use the user is moving up, likely by pressing the ArrowUp key.
+{-| The application calls moveUp to tell us the user is navigating up,
+    likely by pressing the ArrowUp key.
     It returns the new State, and the Maybe highlighted item (String),
     in case the application needs it.
 -}
@@ -148,8 +149,8 @@ definitelyMoveUp idx items state =
                             , highlighted = lastItem
                             }
 
-{-| The caller tells use the user is moving down, llikely due to
-    pressing the ArrowDown key.
+{-| The application calls moveDown to tell us the user is navigating down,
+    likely by pressing the ArrowDown key.
     **moveDown** will adjust the highlightedIndex appropriately.
     It returns the new State, and the Maybe highlighted item (String),
     in case the application needs it.
@@ -213,10 +214,12 @@ definitelyMoveDown idx items state =
                             }
 
 
-{-| The config has static information, which doesn't
-    change during the life cycle of the AutoDropdown.
+{-| The Config has static information, which doesn't
+    change during the life cycle of the AutoDropdown. It tells
+    AutoDropdown which HTML.Attributes to add to the DropDown
+    that it renders.
     This *never* goes into the application's Model.
-    It's closer to your View.
+    Its coupled to your View logic.
 -}
 type alias Config msg =
     -- For both mouseDownMsg and mouseEnterMsg,
@@ -243,7 +246,7 @@ view config state items =
     in
         ul ulAttrs (Array.indexedMap (viewItem config state) items)
 
--- Render and individual <li> for the dropdown's <ul>
+-- Render an individual <li> for the dropdown's <ul>
 viewItem : Config msg -> State -> Int -> String -> Html msg
 viewItem config state idx item =
     let
